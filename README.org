@@ -1,3 +1,18 @@
+* Machines virtuelles déplacée
+Proxmox crée des images disque dans /var/lib/vz
+Étant donné que la partition /var est limitée à 2.7G le répertoire a été déplacé dans 
+/home/aziz/vz
+Un lien symbolique a été crée à l'ancien emplacement 
+#+BEGIN_SRC sh
+cp -R /var/lib/vz /home/aziz
+mv /var/lib/vz /var/lib/vz2
+# Proxomox crée rapidement et automatiquement un dossier vz dans /var/lib
+# il faut donc s'y prendre rapidement pour créer le lien symbolique
+# En faisant suivre les commandes tel que suit c'est possible 
+rm -r /var/lib/vz && ln -s /home/aziz/vz /var/lib/vz
+rm -r /var/lib/vz2
+#+END_SRC
+
 * Instance Odoo
 Il existe une instance odoo tournant sur debian-IGPRO.
 
