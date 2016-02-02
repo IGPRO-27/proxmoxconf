@@ -1,3 +1,5 @@
-Ce fichier contient les configurations en cours sur debian-IGPRO
+Ce fichier contient les configurations en cours sur debian-IGPRO.
+
 Le système héberge un serveur Proxmox qui permet la gestion des machines virtuelles
+
 Le fichier ~interfaces~ gère les NIC virtuels servant aux bridges
