@@ -1,0 +1,10 @@
+* Apt-cacher-ng
+Permet de minimiser le recours au réseau externe pour l'installation des paquets.
+
+Le fichier 01proxy installé dans /etc/apt/conf.d/ fait pointer le gestionnaire de paquet vers le serveur apt-cache-ng avant d'aller voir à l'extérieur.
+
+Si le paquet existe déjà dans le cache il s'en servira.
+
+* /etc/apt-cacher-ng
+acng.conf est le fichier de configuration de ap-cacher-ng
+zzz_override.conf est nécessaire pour contrer les directives de zz_debconf.conf qui sont générées automatiquement par le gestionnaire de paquet à chaque installation ou mise à jour.

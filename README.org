@@ -1,5 +1,10 @@
-Ce fichier contient les configurations en cours sur debian-IGPRO.
+* Instance Odoo
+Il existe une instance odoo tournant sur debian-IGPRO.
+
+Sa mise en place n'est pas documentée.
+* Init
+Ce dépôt contient les configurations en cours sur debian-IGPRO.
 
 Le système héberge un serveur Proxmox qui permet la gestion des machines virtuelles
 
-Le fichier ~interfaces~ gère les NIC virtuels servant aux bridges
+Le fichier ~network/interfaces~ gère les NIC virtuels servant aux bridges
