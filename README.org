@@ -1,3 +1,17 @@
+* Partage samba
+Les instructions de partage à faire figurer dans le fichier de configuration samba
+/etc/samba/smb.conf
+
+#+BEGIN_EXAMPLE
+[odooN]
+	path=/home/dev/path/to/odooN
+	guest ok = yes
+	read only = no
+	force group = dev
+	force user = dev
+	create mask = 0655
+	force directory mode = 0755
+#+END_EXAMPLE
 * Apt-cacher-ng
 https://www.unix-ag.uni-kl.de/~bloch/acng/html/howtos.html#howto-importiso
 #+BEGIN_SRC sh
