@@ -1,14 +1,29 @@
+* Apt-cacher-ng
+https://www.unix-ag.uni-kl.de/~bloch/acng/html/howtos.html#howto-importiso
+#+BEGIN_SRC sh
+sudo mount -o umask=0022,gid=1002,uid=1002 /dev/sdb1 mdd
+sudo mount -o loop mdd/debian830_dvd/debian-8.3.0-amd64-DVD-3.iso miso
+sudo ln -s /home/aziz/miso/pool/ /home/aziz/apt-cacher-ng/_import/
+#+END_SRC
+Browse http://192.168.1.10:3142 to import in apt-cacher-ng
+#+BEGIN_SRC sh
+sudo rm apt-cacher-ng/_import/pool
+sudo umount miso
+#+END_SRC
 * Lenteur authentification SSH
-In file /etc/ssh/ssh_config
+In file /etc/ssh/sshd_config
 #+BEGIN_EXAMPLE
     GSSAPIAuthentication no
     # GSSAPIAuthentication yes
+
 #+END_EXAMPLE
 No need to restart
 #+BEGIN_EXAMPLE
 UseDNS no
 #+END_EXAMPLE
 Need restart
+
+Ne donne pas d'améliorations notables
 * Machines virtuelles déplacée
 Proxmox crée des images disque dans /var/lib/vz
 Étant donné que la partition /var est limitée à 2.7G le répertoire a été déplacé dans
