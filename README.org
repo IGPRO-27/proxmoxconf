@@ -24,7 +24,7 @@ Redémarrer
 sudo shutdown -r now
 #+END_SRC
 Si votre shell ne vous redonne pas la main utiliser la séquence suivante pour vous détacher
-~Enter~ ~~~ ~.~
+[Enter] [~] [.] (Enter tilde point)
 La nouvelle machine est désormais accessible en ssh sous son nouveau nom.
 #+BEGIN_SRC sh
 ssh dev@nouveaunom.local
