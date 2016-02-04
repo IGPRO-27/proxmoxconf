@@ -14,7 +14,21 @@ auto vmbr0
 iface vmbr0 inet static
       address 192.168.1.9
 #+END_EXAMPLE
+Attention, il est nécessaire de changer les clés ssh du serveur sur la machine clone
+#+BEGIN_SRC sh
+sudo rm /etc/ssh/ssh_host_*
+sudo dpkg-reconfigure openssh-server
+#+END_SRC
 Redémarrer
+#+BEGIN_SRC sh
+sudo shutdown -r now
+#+END_SRC
+Si votre shell ne vous redonne pas la main utiliser la séquence suivante pour vous détacher
+~Enter~ ~\~~ ~.~
+La nouvelle machine est désormais accessible en ssh sous son nouveau nom.
+#+BEGIN_SRC sh
+ssh dev@nouveaunom.local
+#+END_SRC
 * Partage samba
 Les instructions de partage à faire figurer dans le fichier de configuration samba
 /etc/samba/smb.conf
