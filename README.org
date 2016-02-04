@@ -1,3 +1,20 @@
+* Clonage de machines virtuelles sur Proxmox
+Sur l'arborescence du menu de droite, clic droit sur dev0 et choisir cloner. Donner un nouveau nom à la machine et choisir ~qcow2~ comme type de disque.
+Lancer le clone et se connecter dessus avec
+#+BEGIN_SRC sh
+ssh dev@192.168.1.9
+#+END_SRC
+Éditer le fichier ~/etc/hosts~ en remplaçant ~dev0~ par le nouveau nom d'hôte qu'on souhaite donner à la machine.
+#+BEGIN_SRC sh
+sudo hostnamectl set-hostname nouveaunom
+#+END_SRC
+Éditeur le fichier ~/etc/network/interface~ et remplacer ~192.168.1.9~ par la nouvelle adresse.
+#+BEGIN_EXAMPLE
+auto vmbr0
+iface vmbr0 inet static
+      address 192.168.1.9
+#+END_EXAMPLE
+Redémarrer
 * Partage samba
 Les instructions de partage à faire figurer dans le fichier de configuration samba
 /etc/samba/smb.conf
