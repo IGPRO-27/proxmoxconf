@@ -1,10 +1,9 @@
 * Partage samba
 Les instructions de partage à faire figurer dans le fichier de configuration samba
 /etc/samba/smb.conf
-
 #+BEGIN_EXAMPLE
-[odooN]
-	path=/home/dev/path/to/odooN
+[odoo]
+	path=/home/dev/path/to/odoo
 	guest ok = yes
 	read only = no
 	force group = dev
@@ -56,7 +55,75 @@ rm -r /var/lib/vz2
 * Instance Odoo
 Il existe une instance odoo tournant sur debian-IGPRO.
 
-Sa mise en place n'est pas documentée.
++Sa mise en place n'est pas documentée.+
+http://openies.com/install-openerp-odoo-9-on-ubuntu-server-14-04-lts/
+#+BEGIN_SRC sh
+# Create Odoo System User that will own and run the odoo application.
+sudo adduser --system --home=/opt/odoo --group odoo
+# Install and Configure Postgres
+sudo apt-get install postgresql
+# OR
+# Create the file /etc/apt/sources.list.d/pgdg.list, and add a line for the
+# repository using vim or nano editor
+# deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
+# Import the repository signing key, and update the package lists
+# wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+# After installing postgres 9.4, change to the postgres user so we have the
+# necessary privileges to configure the database
+sudo su - postgres
+# Now create a new database user with access to create and drop database.
+createuser --createdb --username postgres --no-createrole --no-superuser --pwprompt odoo
+# Enter password for new role: ********
+# Enter it again: ********
+exit
+# Install the necessary libraries
+sudo apt-get install python-pip python-dev libevent-dev gcc libxml2-dev libxslt-dev node-less libldap2-dev libssl-dev libsasl2-dev
+# Note : Odoo 9 is depends on node-less
+# After installing this system libraries we can install python libraries using
+# pip. Create requirement.txt file in server.
+cd /tmp && wget https://raw.githubusercontent.com/odoo/odoo/9.0/ requirements.txt && sudo pip install -r requirements.txt
+# Install wkhtmltopdf
+# wkhtmltopdf is necessary for odoo’s Qweb templating.
+# http://download.gna.or/wkhtmltopdf/0.12/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+sudo dpkg -i /tmp/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+# Now we will Install Git in order to get the code from github:
+sudo apt-get install git
+# Switch to the Odoo user:
+sudo su - odoo -s /bin/bash
+# Grab a copy of the most current Odoo 9(master) branch (Note the “.” at the end of this command!):
+git clone https://www.github.com/odoo/odoo --depth 1 --branch 9.0 --single-branch .
+# Configuring the Odoo application
+# The   default   configuration   file   for   the   server   is   under
+# /opt/odoo/debian/ openerp-server.conf.  we’ll copy that file  to where
+# we need it and change it’s ownership and permissions:
+cd /etc && mkdir odoo
+sudo cp /opt/odoo/debian/openerp-server.conf /etc/odoo/odoo-server.conf
+sudo chown odoo: /etc/odoo/odoo-server.conf
+sudo chmod 640 /etc/odoo/odoo-server.conf
+# To allow odoo to use default addons you need to change the addons_path line in
+# config file addons_path = /usr/lib/python2.7/dist-packages/openerp/addons in
+# the config file to addons_path = /opt/odoo/addons
+
+# Installing the Init script
+sudo cp /opt/odoo/debian/init /etc/init.d/odoo-server
+sudo chmod 755 /etc/init.d/odoo-server
+sudo chown root: /etc/init.d/odoo-server
+# create odoo directory under /var/log/
+sudo mkdir /var/log/odoo
+cd /var/log/odoo
+cat > odoo-server.log
+# give the permission to writable by the odoo user
+sudo chmod 755 /var/log/odoo/odoo-server.log
+sudo chown odoo:root -R /var/log/odoo/
+# Testing the odoo server
+sudo /etc/init.d/odoo-server start
+sudo tail -f /var/log/odoo/odoo-server.log
+sudo /etc/init.d/odoo-server stop
+
+# Atomizing Odoo server startup
+sudo update-rc.d odoo-server defaults
+#+END_SRC
+
 * Init
 Ce dépôt contient les configurations en cours sur debian-IGPRO.
 
