@@ -1,0 +1,22 @@
+#!/bin/bash
+# Ce script met à jour odoo selon l'état d'avancement du projet sur le
+# dépôt officiel odoo sur github
+
+# La ligne suivante  détermine si le dépôt courant est  sur la branche
+# 8.0 ou 9.0
+branche=$(git branch -r | awk '{FS="/"} /->/ {print $3}')
+
+# On interroge la date du dernier commit disponible sur le dépôt local
+# et on le format de sorte à l'utiliser dans la prochaine étape
+date_curr_HEAD=$(git show HEAD --format=%ci | head -1 | sed 's/\+.*//;s/ $//;s/$/Z/;s/ /T/')
+
+# On interroge github au travers de  son API pour compter le nombre de
+# commit que le dépôt local a en retard en utilisation since date_curr_HEAD
+number_commits_forward=$(curl -si "https://api.github.com/repos/odoo/odoo/commits?sha=$branche&since=$date_curr_HEAD" |  grep \"commit\"  | wc -l)
+
+# Si retard on fetch les commits manquants
+if [ $number_commits_forward -gt 0 ]; then
+    git fetch --depth $number_commits_forward
+else
+    echo "There is no new commits"
+fi
