@@ -1,5 +1,5 @@
 * Clonage partiel de odoo et update (méthode automatisée)
-#+BEGIN_SRC sh
+#+begin_src sh :tangle ./scripts/gupodoo
 #!/bin/bash
 # Ce script met à jour odoo selon l'état d'avancement du projet sur le
 # dépôt officiel odoo sur github
@@ -23,108 +23,29 @@ else
     echo "There is no new commits"
 fi
 
-#+END_SRC
-* Clonage partiel de odoo et mise à jour (méthode insatisfaisante)
-Pour odoo9
-#+BEGIN_SRC sh
-ssh dev@devo9.local
-cd
-cd odoo
-git clone https://www.github.com/odoo/odoo --depth 2 --branch 9.0 --single-branch .
-#+END_SRC
-Pour odoo8
-#+BEGIN_SRC sh
-ssh dev@devo8.local
-cd
-cd odoo
-git clone https://www.github.com/odoo/odoo --depth 2 --branch 8.0 --single-branch .
-#+END_SRC
-Il sera par la suite possible de faire des fetch avec l'option ~--depth~
-Il faudra toutefois savoir le nombre de commits qui ont été ajoutés depuis.
-La commande ~git fetch~ met à jour la branche ~remotes/origin/9.0~ et laisse la branche ~9.0~ intacte jusqu'au merge.
-~git branch -av~ donne un listing de toutes les branches hébergées dans le dépôt local.
-#+BEGIN_EXAMPLE
-$ git branch -av
- * 9.0                 7c11d4e [FIX] web_editor: minor tweaks IE11
-   remotes/origin/9.0  7c11d4e [FIX] web_editor: minor tweaks IE11
-   remotes/origin/HEAD -> origin/9.0
-$ git log --oneline
-7c11d4e [FIX] web_editor: minor tweaks IE11
-9c594cb [FIX] website: optimize SEO in other languages than the default one
-#+END_EXAMPLE
-Après près de 12h nous allons tenter de mettre à jour notre dépôt odoo.
-On va tester un ~git fetch --depth 2~
-#+BEGIN_EXAMPLE
-$ git fetch --depth 2
-remote: Counting objects: 22, donne.
-remote: Compressing objects: 100% (6/6), donne.
-remote: Total 22 (delta 20), reused 18 (delta 16), pack-reused 0
-Unpacking objects: 100% (22/22), donne.
-Depuis https://www.github.com/odoo/odoo
-+ 7c11d4e...ce784ae 9.0        -> origin/9.0  *(mise à jour forcée)*
-#+END_EXAMPLE
-La dernière ligne de sortie de la commande nous renseigne sur l'état des lieux *(mise à jour forcée)*
-
-~git branch -av~ de nouveau nous donne un aperçu de l'effet de la commande fetch.
-
-La branche ~remotes/origin/9.0~ qui correspond à l'état du remote a avancé.
-#+BEGIN_EXAMPLE
-$ git branch -av
- * 9.0                 7c11d4e [en avance de 2, en retard de 2] [FIX] web_editor: minor tweaks IE11
-   remotes/origin/9.0  ce784ae [FIX] account: default value of refund_sequence boolean on journal is False, as the most common practice seems to share the same numbering for invoices and refunds
-   remotes/origin/HEAD -> origin/9.0
-#+END_EXAMPLE
-Si nous souhaitons faire le merge celui-ci va échouer.
-
-/Remarque/: il  n'est pas nécessaire d'écrire  ~remotes/origin/9.0~ au
-complet, ~origin/9.0~ suffit.
-#+BEGIN_EXAMPLE
-$ git merge origin/9.0
-Fusion automatique de openerp/tools/mail.py
-CONFLIT (ajout/ajout) : Conflit de fusion dans openerp/tools/mail.py
-Fusion automatique de openerp/addons/base/tests/test_mail.py
-CONFLIT (ajout/ajout) : Conflit de fusion dans openerp/addons/base/tests/test_mail.py
-Fusion automatique de addons/sale_stock/res_config.py
-CONFLIT (ajout/ajout) : Conflit de fusion dans addons/sale_stock/res_config.py
-Fusion automatique de addons/account/models/chart_template.py
-CONFLIT (ajout/ajout) : Conflit de fusion dans addons/account/models/chart_template.py
-Fusion automatique de addons/account/models/account_bank_statement.py
-CONFLIT (ajout/ajout) : Conflit de fusion dans addons/account/models/account_bank_statement.py
-Fusion automatique de addons/account/models/account.py
-CONFLIT (ajout/ajout) : Conflit de fusion dans addons/account/models/account.py
-La fusion automatique a échoué ; réglez les conflits et validez le résultat.
-#+END_EXAMPLE
-Il est bien sûr hors de question de régler les conflits nous-mêmes.
-
-Nous allons  remettre notre  dépôt local odoo  dans son  état originel
-avec une commande à manipuler avec précaution ~git reset --hard~ avant
-d'approfondir  le  fetch  et  arriver  à  reconstruire  un  historique
-cohérent des commits qui inclue notre HEAD.
-#+BEGIN_EXAMPLE
-$ git reset --hard
-HEAD est maintenant à 7c11d4e [FIX] web_editor: minor tweaks IE11
-#+END_EXAMPLE
-
-* Clonage de machines virtuelles sur Proxmox
+#+end_src
+* Clonage de VM sur Proxmox
 Sur l'arborescence du menu de droite, clic droit sur dev0 et choisir cloner. Donner un nouveau nom à la machine et choisir ~qcow2~ comme type de disque.
 Lancer le clone et se connecter dessus avec
 #+BEGIN_SRC sh
 ssh dev@192.168.1.9
 #+END_SRC
-Éditer le fichier ~/etc/hosts~ en remplaçant ~dev0~ par le nouveau nom d'hôte qu'on souhaite donner à la machine.
-#+BEGIN_SRC sh
-sudo hostnamectl set-hostname nouveaunom
-#+END_SRC
-Éditeur le fichier ~/etc/network/interface~ et remplacer ~192.168.1.9~ par la nouvelle adresse.
+Éditer le fichier ~/etc/network/interface~ et remplacer ~192.168.1.9~ par la nouvelle adresse.
 #+BEGIN_EXAMPLE
 auto vmbr0
 iface vmbr0 inet static
       address 192.168.1.9
 #+END_EXAMPLE
-Attention, il est nécessaire de changer les clés ssh du serveur sur la machine clone
+Changer les clés ssh du serveur sur la machine clone
 #+BEGIN_SRC sh
 sudo rm /etc/ssh/ssh_host_*
 sudo dpkg-reconfigure openssh-server
+#+END_SRC
+Éditer le fichier ~/etc/hosts~ en remplaçant ~dev0~ par le nouveau nom d'hôte qu'on souhaite donner à la machine.
+
+Changer le hostname
+#+BEGIN_SRC sh
+sudo hostnamectl set-hostname nouveaunom
 #+END_SRC
 Redémarrer
 #+BEGIN_SRC sh
@@ -190,7 +111,7 @@ rm -r /var/lib/vz && ln -s /home/aziz/vz /var/lib/vz
 rm -r /var/lib/vz2
 #+END_SRC
 
-* Instance Odoo
+* Odoo à démarrage au boot
 Il existe une instance odoo tournant sur debian-IGPRO.
 
 +Sa mise en place n'est pas documentée.+
