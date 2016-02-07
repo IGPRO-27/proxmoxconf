@@ -1,4 +1,6 @@
 * Clonage partiel de odoo et update (méthode automatisée)
+*ATTENTION*
+Ne pas utiliser le script en l'état. Encore en test.
 #+begin_src sh :tangle ./scripts/gupodoo
 #!/bin/bash
 
