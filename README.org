@@ -1,28 +1,33 @@
 * Clonage partiel de odoo et update (méthode automatisée)
 #+begin_src sh :tangle ./scripts/gupodoo
 #!/bin/bash
+
 # Ce script met à jour odoo selon l'état d'avancement du projet sur le
 # dépôt officiel odoo sur github
 
-# La ligne suivante  détermine si le dépôt courant est  sur la branche
-# 8.0 ou 9.0
+# La ligne suivante détermine si le dépôt local est sur la version 8.0
+# ou 9.0 de odoo
 branche=$(git branch -r | awk '{FS="/"} /->/ {print $3}')
 
 # On interroge la date du dernier commit disponible sur le dépôt local
-# et on le format de sorte à l'utiliser dans la prochaine étape
 date_curr_HEAD=$(git show HEAD --format=%ci | head -1 | sed 's/\+.*//;s/ $//;s/$/Z/;s/ /T/')
 
 # On interroge github au travers de  son API pour compter le nombre de
-# commit que le dépôt local a en retard en utilisation since date_curr_HEAD
+# commits que le dépôt local a en retard
 number_commits_forward=$(curl -si "https://api.github.com/repos/odoo/odoo/commits?sha=$branche&since=$date_curr_HEAD" |  grep \"commit\"  | wc -l)
 
-# Si retard on fetch les commits manquants
+echo "Vous avez $number_commits_forward commits de différence avec l'état d'avancement du projet Odoo$branche"
+
+com_to_fetch=$(($number_commits_forward + 2))
+
+echo "On va fetcher $com_to_fetch commits dans origin/$branche"
+
+#Si retard on fetch les commits manquants
 if [ $number_commits_forward -gt 0 ]; then
-    git fetch --depth $number_commits_forward
+    git fetch --depth $com_to_fetch
 else
     echo "There is no new commits"
 fi
-
 #+end_src
 * Clonage de VM sur Proxmox
 Sur l'arborescence du menu de droite, clic droit sur dev0 et choisir cloner. Donner un nouveau nom à la machine et choisir ~qcow2~ comme type de disque.
