@@ -1,13 +1,3 @@
-
-- [] Clonage partiel de odoo et update (méthode automatisée)
-- [x] Clonage de VM sur Proxmox
-- [x] Partage samba
-- [x] Apt-cacher-ng
-- [] Lenteur authentification SSH
-- [x] Machines virtuelles déplacée
-- [x] Odoo à démarrage au boot
-- [x] Init
-
 * Clonage partiel de odoo et update (méthode automatisée)
 *ATTENTION*
 Ne pas utiliser le script en l'état. Encore en test.
