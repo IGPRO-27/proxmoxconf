@@ -13,11 +13,14 @@ $ du -h --max-depth=0
 573M    .
 #+END_SRC
 *Observation*
-	Contrairement à ce qui a été introduit un clone --depth 1 crée un dossier ~.git/~
+#+BEGIN_EXAMPLE
+	Contrairement à ce qui a été introduit un clone --depth 1 crée un dossier .git/
 	L'installation igpro-online n'a pas été faite selon cette méthode.
+	L'autre éventualité est que le dossier ait disparu suite à une mauvaise manipulation.
+#+END_EXAMPLE
 ** Problématique
 Maintenir l'installation du client et de l'équipe de développement à jour.
-Un simple ~git pull~ reconstruira l'historique odoo du début ce qui aura pour effet de tripler le volume de l'installation et de rogner sur le crédit de flux.
+Un simple ~git pull~ reconstruira l'historique odoo depuis le début ce qui aura pour effet de tripler le volume de l'installation et de rogner sur le crédit de flux.
 
 ** Piste gupodoo
 La stratégie est ici de fetcher le nombre de commits de différence par
