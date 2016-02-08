@@ -1,0 +1,10 @@
+#!/bin/bash
+current_host=$(hostname)
+agent=$USER
+if [ "$current_host" != "debian-igpro" ]; then
+    echo "Hello $agent you are not on debian-igpro"
+    echo "This script is intended to clone VMs on Proxmox server"
+    echo ""
+   else
+       echo "You are not on pdn"
+fi
