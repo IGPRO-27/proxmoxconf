@@ -1,4 +1,33 @@
 * Clonage partiel de odoo et update (méthode automatisée)
+** Scénario
+Le client demande une installation odoo hébergée. Dans cet exemple la version 9.0.
+Sur le serveur, faire un clone avec une profondeur de 1 commit d'historique
+#+BEGIN_SRC sh
+git clone https://www.github.com/odoo/odoo --depth 1 --branch 9.0 --single-branch .
+#+END_SRC
+Le résultat à date <2016-02-08 lun.>
+#+BEGIN_SRC sh
+$ git log --oneline
+05f44e5 [FIX] purchase: avoid comparing Records with ids
+$ du -h --max-depth=0
+573M    .
+#+END_SRC
+*Observation*
+	Contrairement à ce qui a été introduit un clone --depth 1 crée un dossier ~.git/~
+	L'installation igpro-online n'a pas été faite selon cette méthode.
+** Problématique
+Maintenir l'installation du client et de l'équipe de développement à jour.
+Un simple ~git pull~ reconstruira l'historique odoo du début ce qui aura pour effet de tripler le volume de l'installation et de rogner sur le crédit de flux.
+
+** Piste gupodoo
+La stratégie est ici de fetcher le nombre de commits de différence par
+rapport au dépot odoo/odoo plus le nombre de commits en local.
+
+La problématique n'est pour autant pas complètement résolue.
+Les pistes de git-submodules et git-subtree seront à explorer également.
+
+Le but est de ne pas tomber dans le même cas de figure de l'installation
+igpro-online tout en développant les modules client.
 *ATTENTION*
 Ne pas utiliser le script en l'état. Encore en test.
 #+begin_src sh :tangle ./scripts/gupodoo
