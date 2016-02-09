@@ -1,4 +1,30 @@
 * Comparatif odoo 9.0 vs 8.0 en termes de mises à jour
+** 2e test odoo9.0
+La solution de contournement serait de créer des cron job qui feraient
+appelle à gupodoo toutes les heures
+Test à <2016-02-09 mar. 09:27>
+#+BEGIN_SRC sh
+$ gupodoo
+On est sur la branche 9.0
+Le dernier commit en local remonte au 2016-02-08T17:25:10Z
+Vous avez 2 commits de différence avec l'état d'avancement du projet Odoo9.0
+Le fetch aura 27 commits de profondeur
+remote: Counting objects: 4817, donne.
+remote: Compressing objects: 100% (4414/4414), donne.
+remote: Total 4817 (delta 3275), reused 1619 (delta 402), pack-reused 0
+Réception d'objets: 100% (4817/4817), 11.66 MiB | 947.00 KiB/s, donne.
+Résolution des deltas: 100% (3275/3275), complété avec 2061 objets locaux.
+Depuis https://www.github.com/odoo/odoo
+   58bc484..0948656  9.0        -> origin/9.0
+aziz@pdn ~/Git-Repos/jedi-starter/o9 $ git merge origin/
+origin/9.0    origin/HEAD
+aziz@pdn ~/Git-Repos/jedi-starter/o9 $ git merge origin/9.0
+Mise à jour 58bc484..0948656
+Fast-forward
+ addons/payment_ogone/models/ogone.py | 3 ++-
+ doc/howtos/backend.rst               | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+#+END_SRC
 ** Odoo9.0 une branche en développement intensif
 En  l'espace  de   12h  la  branche  9.0  de  odoo   a  avancé  de  12
 commits.  Mettre à  jour  odoo  avec ces  12  commits  a nécessité  le
@@ -66,7 +92,7 @@ cb609bd [FIX] tools.misc: log errors when parsing fails
 e8d06f7 [MERGE] Forward-port 7.0 up to bdbcbea2857e5bd875f9922cce443d9f9f506bb4
 d613843 [MERGE] forward port of branch 8.0 up to 8848af7
 #+END_SRC
-** Odoo8.0 une branche plus gérable en production et plus intéressante commercialement
+** Odoo8.0 une branche plus gérable en production
 La branche  8.0 est plus  stable. Dans le même  laps de temps  un seul
 commit a été enregistré. La mise à jour est immédiate.
 
