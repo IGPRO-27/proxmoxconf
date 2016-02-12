@@ -26,8 +26,12 @@ echo "Vous avez $number_commits_forward commits de différence avec l'état d'av
 
 #Si retard on fetch les commits manquants
 if [ $number_commits_forward -gt 0 ]; then
-    profondeur_local=$(git log --oneline | wc -l)
-    profondeur_fetch=$(($number_commits_forward + $profondeur_local))
+    if [ $branche == 9.0 ]; then
+	profondeur_fetch=$(($number_commits_forward + 1))
+    else
+	profondeur_local=$(git log --oneline | wc -l)
+	profondeur_fetch=$(($number_commits_forward + $profondeur_local))
+    fi
     echo "Le fetch aura $profondeur_fetch commits de profondeur"
     git fetch --depth $profondeur_fetch
 else

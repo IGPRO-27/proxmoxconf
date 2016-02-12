@@ -1,3 +1,49 @@
+* Gupodoo (git update odoo)
+La mise à jour de la branche 9.0 a été allégée. Les anciennes versions
+de  gupodoo faisaient  augmenter  la profondeur  du  fetch de  manière
+exponentielle  vu le  profil de  développement sur  cette branche  qui
+intégrait la migration d'autres versions de odoo.
+#+BEGIN_SRC sh
+#!/bin/bash
+
+# Ce script met à jour odoo selon l'état d'avancement du projet sur le
+# dépôt officiel odoo sur github
+
+
+# La ligne suivante détermine si le dépôt local est sur la version 8.0
+# ou 9.0 de odoo
+branche=$(git branch -r | awk '{FS="/"} /->/ {print $3}')
+
+if [[ -z $branche ]]; then
+    branche=8.0
+    echo "On est sur la branche $branche"
+else
+    echo "On est sur la branche $branche"
+fi
+
+# On interroge la date du dernier commit disponible sur le dépôt local
+date_curr_HEAD=$(git show HEAD --format=%ci | head -1 | sed 's/\+.*//;s/ $//;s/$/Z/;s/ /T/')
+echo "Le dernier commit en local remonte au $date_curr_HEAD"
+
+# On interroge github au travers de  son API pour compter le nombre de
+# commits que le dépôt local a en retard
+number_commits_forward=$(curl -si "https://api.github.com/repos/odoo/odoo/commits?sha=$branche&since=$date_curr_HEAD" |  grep \"commit\"  | wc -l)
+echo "Vous avez $number_commits_forward commits de différence avec l'état d'avancement du projet Odoo$branche"
+
+#Si retard on fetch les commits manquants
+if [ $number_commits_forward -gt 0 ]; then
+    if [ $branche == 9.0 ]; then
+	profondeur_fetch=$(($number_commits_forward + 1))
+    else
+	profondeur_local=$(git log --oneline | wc -l)
+	profondeur_fetch=$(($number_commits_forward + $profondeur_local))
+    fi
+    echo "Le fetch aura $profondeur_fetch commits de profondeur"
+    git fetch --depth $profondeur_fetch
+else
+    echo "There is no new commits"
+fi
+#+END_SRC
 * Comparatif odoo 9.0 vs 8.0 en termes de mises à jour
 ** 2e test odoo9.0
 La solution de contournement serait de créer des cron job qui feraient
@@ -154,7 +200,7 @@ Le but est de ne pas tomber dans le même cas de figure de l'installation
 igpro-online tout en développant les modules client.
 *ATTENTION*
 Ne pas utiliser le script en l'état. Encore en test.
-** script gupodoo
+** +script gupodoo+
 #+begin_src sh :tangle ./scripts/gupodoo
 #!/bin/bash
 
@@ -351,6 +397,103 @@ sudo /etc/init.d/odoo-server stop
 
 # Atomizing Odoo server startup
 sudo update-rc.d odoo-server defaults
+#+END_SRC
+
+* Installation sur machine virtuelle
+#+BEGIN_SRC sh
+# Create Odoo System User that will own and run the odoo application.
+#sudo adduser --system --home=/opt/odoo --group odoo
+# Install and Configure Postgres
+sudo apt-get install postgresql
+# OR
+# Create the file /etc/apt/sources.list.d/pgdg.list, and add a line for the
+# repository using vim or nano editor
+# deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
+# Import the repository signing key, and update the package lists
+# wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+# After installing postgres 9.4, change to the postgres user so we have the
+# necessary privileges to configure the database
+sudo su - postgres
+# Now create a new database user with access to create and drop database.
+createuser --createdb --username postgres --no-createrole --no-superuser --pwprompt dev
+# Enter password for new role: ********
+# Enter it again: ********
+exit
+# Install the necessary libraries
+sudo apt-get install python-pip python-dev libevent-dev gcc libxml2-dev libxslt-dev node-less libldap2-dev libssl-dev libsasl2-dev
+# Note : Odoo 9 is depends on node-less
+# After installing this system libraries we can install python libraries using
+# pip. Create requirement.txt file in server.
+#cd /tmp && wget https://raw.githubusercontent.com/odoo/odoo/9.0/ requirements.txt && sudo pip install -r requirements.txt
+cd ~odoo && sudo pip install -r requirements.txt
+#####################
+# Here complain
+# Downloading/unpacking psycopg2==2.5.3 (from -r requirements.txt (line 22))
+#   Downloading psycopg2-2.5.3.tar.gz (690kB): 690kB downloaded
+#   Running setup.py (path:/tmp/pip-build-ctGGzW/psycopg2/setup.py) egg_info for package psycopg2
+#     Error: You need to install postgresql-server-dev-X.Y for building a server-side extension or libpq-dev for building a client-side application.
+#     Complete output from command python setup.py egg_info:
+#     running egg_info
+# creating pip-egg-info/psycopg2.egg-info
+# writing pip-egg-info/psycopg2.egg-info/PKG-INFO
+# writing top-level names to pip-egg-info/psycopg2.egg-info/top_level.txt
+# writing dependency_links to pip-egg-info/psycopg2.egg-info/dependency_links.txt
+# writing manifest file 'pip-egg-info/psycopg2.egg-info/SOURCES.txt'
+# warning: manifest_maker: standard file '-c' not found
+#
+aptitude install postgresql-server-dev-9.4
+####################
+# Install wkhtmltopdf
+# wkhtmltopdf is necessary for odoo’s Qweb templating.
+# http://download.gna.or/wkhtmltopdf/0.12/0.12.2.1/wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+sudo dpkg -i wkhtmltox-0.12.2.1_linux-trusty-amd64.deb
+###############################
+# dpkg: des problèmes de dépendances empêchent la configuration de wkhtmltox :
+#  wkhtmltox dépend de libjpeg-turbo8 ; cependant :
+#   Le paquet libjpeg-turbo8 n'est pas installé.
+#  wkhtmltox dépend de xfonts-base ; cependant :
+#   Le paquet xfonts-base n'est pas installé.
+#  wkhtmltox dépend de xfonts-75dpi ; cependant :
+#   Le paquet xfonts-75dpi n'est pas installé.
+###################################
+sudo aptitude install libjpeg-turbo8 xfonts-base xfonts-75dpi
+sudo aptitude install python-lxml python-babel python-werkzeug python-decorator python-yaml python-mako python-pychart python-psutil python-jinja2
+# Now we will Install Git in order to get the code from github:
+# sudo apt-get install git
+# # Switch to the Odoo user:
+# sudo su - odoo -s /bin/bash
+# # Grab a copy of the most current Odoo 9(master) branch (Note the “.” at the end of this command!):
+# git clone https://www.github.com/odoo/odoo --depth 1 --branch 9.0 --single-branch .
+# # Configuring the Odoo application
+# # The   default   configuration   file   for   the   server   is   under
+# # /opt/odoo/debian/ openerp-server.conf.  we’ll copy that file  to where
+# # we need it and change it’s ownership and permissions:
+# cd /etc && mkdir odoo
+# sudo cp /opt/odoo/debian/openerp-server.conf /etc/odoo/odoo-server.conf
+# sudo chown odoo: /etc/odoo/odoo-server.conf
+# sudo chmod 640 /etc/odoo/odoo-server.conf
+# # To allow odoo to use default addons you need to change the addons_path line in
+# # config file addons_path = /usr/lib/python2.7/dist-packages/openerp/addons in
+# # the config file to addons_path = /opt/odoo/addons
+
+# # Installing the Init script
+# sudo cp /opt/odoo/debian/init /etc/init.d/odoo-server
+# sudo chmod 755 /etc/init.d/odoo-server
+# sudo chown root: /etc/init.d/odoo-server
+# # create odoo directory under /var/log/
+# sudo mkdir /var/log/odoo
+# cd /var/log/odoo
+# cat > odoo-server.log
+# # give the permission to writable by the odoo user
+# sudo chmod 755 /var/log/odoo/odoo-server.log
+# sudo chown odoo:root -R /var/log/odoo/
+# # Testing the odoo server
+# sudo /etc/init.d/odoo-server start
+# sudo tail -f /var/log/odoo/odoo-server.log
+# sudo /etc/init.d/odoo-server stop
+
+# # Atomizing Odoo server startup
+# sudo update-rc.d odoo-server defaults
 #+END_SRC
 
 * Init
